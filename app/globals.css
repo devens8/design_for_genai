@@ -142,3 +142,314 @@ body {
   color: #fff;
   opacity: 0.95;
 }
+
+/* ---- Home nav (multiple links) ---- */
+.hero-nav {
+  position: absolute;
+  bottom: 2.5rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.hero-nav .hero-link {
+  position: static;
+  bottom: auto;
+}
+
+/* ---- Auth / login ---- */
+.auth {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+  font-family: system-ui, -apple-system, sans-serif;
+  padding: 1.5rem;
+}
+
+.auth-card {
+  background: rgba(255, 255, 255, 0.97);
+  border-radius: 20px;
+  padding: 2.5rem 2.25rem;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18);
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+}
+
+.auth-card h1 {
+  font-family: var(--font-cursive), cursive;
+  font-size: 2.75rem;
+  color: #b5451f;
+}
+
+.auth-sub {
+  color: #666;
+  margin: 0.25rem 0 1.75rem;
+}
+
+.auth-error {
+  background: #fdecea;
+  color: #7a1f1f;
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.google-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 0.8rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #3c4043;
+  background: #fff;
+  border: 1.5px solid #dadce0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.google-btn:hover:not(:disabled) {
+  background: #f8f9fa;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.google-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.auth-back {
+  display: inline-block;
+  margin-top: 1.5rem;
+  color: #999;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.auth-back:hover {
+  text-decoration: underline;
+}
+
+/* ---- Shared buttons ---- */
+.primary-btn,
+.secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1.3rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease;
+}
+
+.primary-btn {
+  background: #b5451f;
+  color: #fff;
+}
+
+.primary-btn:hover:not(:disabled) {
+  background: #9c3a17;
+}
+
+.primary-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.secondary-btn {
+  background: #fff;
+  color: #b5451f;
+  border: 1.5px solid #e4b7a3;
+}
+
+.secondary-btn:hover {
+  background: #fff6f1;
+}
+
+/* ---- Profile page ---- */
+.page-nav {
+  margin-top: 1rem;
+}
+
+.welcome-banner {
+  max-width: 540px;
+  margin: 0 auto 1.75rem;
+  background: rgba(255, 255, 255, 0.97);
+  color: #7a4a12;
+  border-left: 4px solid #f0a500;
+  padding: 0.9rem 1.15rem;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.profile-form {
+  max-width: 540px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.97);
+  padding: 2rem;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #f0e3dc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #b5451f;
+}
+
+.avatar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.hint {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  text-align: left;
+}
+
+.field span {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.field input,
+.field textarea {
+  padding: 0.7rem 0.85rem;
+  border: 1.5px solid #e0d5cd;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-family: inherit;
+  color: #333;
+}
+
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: #b5451f;
+}
+
+.form-error {
+  color: #7a1f1f;
+  background: #fdecea;
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+.form-success {
+  color: #1f5e2e;
+  background: #e9f7ee;
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+/* ---- Dashboard ---- */
+.dash-card {
+  max-width: 540px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.97);
+  padding: 2rem;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.dash-top {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+.dash-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.dash-avatar--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0e3dc;
+  color: #b5451f;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.dash-hello {
+  font-size: 1.3rem;
+  color: #b5451f;
+}
+
+.dash-email {
+  color: #777;
+  font-size: 0.9rem;
+}
+
+.dash-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.dash-actions form {
+  margin: 0;
+}
+
+.back-link.center {
+  display: block;
+  text-align: center;
+  margin-top: 2rem;
+}
