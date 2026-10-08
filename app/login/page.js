@@ -31,12 +31,12 @@ function LoginInner() {
   return (
     <main className="auth">
       <div className="auth-card">
-        <h1>Welcome</h1>
-        <p className="auth-sub">Sign in to continue</p>
+        <h1>ACCESS REQUIRED</h1>
+        <p className="auth-sub">Authenticate to unlock the vault</p>
 
         {authError && (
           <p className="auth-error">
-            Something went wrong signing you in. Please try again.
+            Authentication failed. Verify credentials and retry.
           </p>
         )}
 

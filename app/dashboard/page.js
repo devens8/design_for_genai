@@ -31,8 +31,8 @@ export default async function DashboardPage() {
   return (
     <main className="page dashboard-page">
       <header className="page-header">
-        <h1>Dashboard</h1>
-        <p className="subtitle">This page is only visible when you’re signed in.</p>
+        <h1>Control Room</h1>
+        <p className="subtitle">// clearance verified · session active</p>
       </header>
 
       <section className="dash-card">
@@ -52,11 +52,14 @@ export default async function DashboardPage() {
         </div>
 
         <div className="dash-actions">
-          <Link className="primary-btn" href="/profile">
-            Edit profile
+          <Link className="primary-btn" href="/vault">
+            Enter vault
           </Link>
-          <Link className="secondary-btn" href="/books">
-            Reading list
+          <Link className="secondary-btn" href="/generate">
+            Generate dossier
+          </Link>
+          <Link className="secondary-btn" href="/profile">
+            Edit profile
           </Link>
           <form action="/auth/signout" method="post">
             <button type="submit" className="secondary-btn">

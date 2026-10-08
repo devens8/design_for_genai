@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 // Routes that require a logged-in user. Unauthenticated visitors are bounced
 // to /login.
-const PROTECTED = ["/profile", "/dashboard"];
+const PROTECTED = ["/profile", "/dashboard", "/vault", "/generate"];
 
 export async function middleware(request) {
   let response = NextResponse.next({ request });

@@ -1,21 +1,31 @@
-import { Dancing_Script } from "next/font/google";
+import { IBM_Plex_Mono, Inter } from "next/font/google";
 import "./globals.css";
+import NavBar from "./components/NavBar";
 
-const cursive = Dancing_Script({
+// Mono for data/labels/headings (the "terminal" feel), Inter for body copy.
+const mono = IBM_Plex_Mono({
   subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-cursive",
+  weight: ["400", "500", "600"],
+  variable: "--font-mono",
+});
+
+const sans = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
 });
 
 export const metadata = {
-  title: "Hello World",
-  description: "A friendly hello, in cursive.",
+  title: "NYC Vault",
+  description: "A declassified, AI-generated archive of places to visit in New York.",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={cursive.variable}>{children}</body>
+      <body className={`${mono.variable} ${sans.variable}`}>
+        <NavBar />
+        {children}
+      </body>
     </html>
   );
 }

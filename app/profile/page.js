@@ -37,7 +37,7 @@ export default async function ProfilePage({ searchParams }) {
         <p className="subtitle">{profile?.email ?? user.email}</p>
         <nav className="page-nav">
           <Link className="back-link" href="/dashboard">
-            ← dashboard
+            ← control room
           </Link>
         </nav>
       </header>
