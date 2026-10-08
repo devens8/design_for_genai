@@ -20,18 +20,16 @@ export default async function NavBar() {
         </span>
       </Link>
 
-      <nav className="nav-links">
-        {/* Public — anyone can browse the Field Archive. */}
-        <Link href="/locations">Archive</Link>
-        {user && (
-          <>
-            <Link href="/vault">Vault</Link>
-            <Link href="/generate">Generate</Link>
-            <Link href="/vault?sort=top">Leaderboard</Link>
-            <Link href="/profile">Profile</Link>
-          </>
-        )}
-      </nav>
+      {/* Members only: no content links until you authenticate. */}
+      {user && (
+        <nav className="nav-links">
+          <Link href="/vault">Vault</Link>
+          <Link href="/generate">Generate</Link>
+          <Link href="/vault?sort=top">Leaderboard</Link>
+          <Link href="/locations">Archive</Link>
+          <Link href="/profile">Profile</Link>
+        </nav>
+      )}
 
       <div className="nav-access">
         {user ? (

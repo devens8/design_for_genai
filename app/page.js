@@ -34,14 +34,9 @@ export default async function Home() {
             </Link>
           </>
         ) : (
-          <>
-            <Link className="hero-link hero-link--primary" href="/login">
-              Authenticate to unlock →
-            </Link>
-            <Link className="hero-link" href="/locations">
-              Preview the archive
-            </Link>
-          </>
+          <Link className="hero-link hero-link--primary" href="/login">
+            Authenticate to unlock →
+          </Link>
         )}
       </nav>
     </main>

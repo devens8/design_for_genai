@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 // Always fetch fresh data from Supabase on each request.
@@ -7,21 +7,21 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Field Archive",
-  description: "Established NYC locations — the public preview of the vault.",
+  description: "Established NYC locations — members only.",
 };
 
 export default async function LocationsPage() {
-  // Public, anon-readable list.
-  const { data: locations, error } = await supabase
-    .from("locations")
-    .select("id, name, neighborhood, category, description")
-    .order("created_at", { ascending: true });
-
-  // Is the viewer signed in? Tailor the call-to-action.
+  // Members only: gated by middleware, enforced again here as a backstop.
   const server = await createClient();
   const {
     data: { user },
   } = await server.auth.getUser();
+  if (!user) redirect("/login?next=/locations");
+
+  const { data: locations, error } = await server
+    .from("locations")
+    .select("id, name, neighborhood, category, description")
+    .order("created_at", { ascending: true });
 
   return (
     <main className="page">
@@ -58,15 +58,9 @@ export default async function LocationsPage() {
       </ul>
 
       <div className="vault-toolbar" style={{ marginTop: "2.5rem", justifyContent: "center" }}>
-        {user ? (
-          <Link className="primary-btn" href="/vault">
-            Enter the vault →
-          </Link>
-        ) : (
-          <Link className="primary-btn" href="/login?next=/vault">
-            Authenticate to unlock the vault →
-          </Link>
-        )}
+        <Link className="primary-btn" href="/vault">
+          Enter the vault →
+        </Link>
       </div>
 
       <Link className="back-link center" href="/">

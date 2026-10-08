@@ -1,10 +1,9 @@
 -- ============================================================================
 -- Field Archive — a curated set of REAL, established NYC locations.
 --
--- This replaces the old `books` reading list. Unlike the AI-generated `vault`
--- dossiers (members-only), the Field Archive is the one intentionally PUBLIC
--- table: it's the teaser logged-out visitors can preview before they unlock
--- the vault.
+-- This replaces the old `books` reading list. Like the AI-generated `vault`
+-- dossiers, the Field Archive is MEMBERS-ONLY: you must log in to see it.
+-- Nothing in the app is readable without authenticating.
 --
 -- Run with: psql "$POSTGRES_URL_NON_POOLING" -f supabase/locations.sql
 -- ============================================================================
@@ -21,17 +20,19 @@ create table if not exists public.locations (
   created_at   timestamptz not null default now()
 );
 
--- Public read: this is the only table anonymous visitors may see.
+-- Members-only read: no anonymous access.
 alter table public.locations enable row level security;
 
 drop policy if exists "locations_public_read" on public.locations;
-create policy "locations_public_read"
+drop policy if exists "locations_members_read" on public.locations;
+create policy "locations_members_read"
   on public.locations
   for select
-  to anon, authenticated
+  to authenticated
   using (true);
 
-grant select on public.locations to anon, authenticated;
+revoke all on public.locations from anon;
+grant select on public.locations to authenticated;
 
 -- Seed real NYC spots (idempotent: only when the table is empty).
 insert into public.locations (name, neighborhood, category, description)
