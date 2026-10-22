@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { oauthRedirectFor } from "@/lib/authRelay";
 
 // Only allow same-site relative redirects after login.
 function safeNext(value) {
@@ -22,9 +23,7 @@ function LoginInner() {
     setLoading(true);
     setError("");
     const supabase = createClient();
-    const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(
-      next
-    )}`;
+    const redirectTo = oauthRedirectFor(window.location.origin, next);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo },
