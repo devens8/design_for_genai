@@ -1,11 +1,10 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import GenerateForm from "./GenerateForm";
 
 export const metadata = {
-  title: "Generate a Dossier",
-  description: "Declassify a new NYC location with AI.",
+  title: "Find a new spot",
+  description: "Ask the AI for a NYC spot.",
 };
 
 export const dynamic = "force-dynamic";
@@ -20,17 +19,14 @@ export default async function GeneratePage() {
   return (
     <main className="page">
       <header className="page-header">
-        <h1>Generate a Dossier</h1>
+        <h1>Find a new spot</h1>
         <p className="subtitle">
-          // feed the vault a neighborhood and let the AI surface a spot
+          Pick a neighborhood and a vibe. The AI suggests one real place and
+          adds it to the vault so others can vote on it.
         </p>
       </header>
 
       <GenerateForm />
-
-      <Link className="back-link center" href="/vault">
-        ← back to the vault
-      </Link>
     </main>
   );
 }

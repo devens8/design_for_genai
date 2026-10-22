@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 // Routes that require a logged-in user. Unauthenticated visitors are bounced
 // to /login.
-const PROTECTED = ["/profile", "/dashboard", "/vault", "/generate", "/locations"];
+const PROTECTED = ["/profile", "/dashboard", "/vault", "/generate", "/locations", "/saved"];
 
 export async function middleware(request) {
   let response = NextResponse.next({ request });
@@ -42,7 +42,17 @@ export async function middleware(request) {
   if (needsAuth && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    url.searchParams.set("next", pathname);
+    // Keep the query (e.g. ?sort=top) so users land exactly where they meant to.
+    url.search = "";
+    url.searchParams.set("next", pathname + request.nextUrl.search);
+    return NextResponse.redirect(url);
+  }
+
+  // Already signed in? Skip the login screen.
+  if (pathname === "/login" && user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/vault";
+    url.search = "";
     return NextResponse.redirect(url);
   }
 

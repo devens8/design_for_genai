@@ -4,15 +4,26 @@ A dark, high-tech "vault" of **AI-generated NYC location dossiers** that signed-
 users generate and the community rates. Built with Next.js (App Router) + Supabase,
 deployed on Vercel.
 
-- **Home** (`/`) — the "vault door": authenticate to unlock, or preview the archive.
-- **Field Archive** (`/locations`) — **public**; curated real NYC spots from a
-  Supabase `locations` table. The teaser logged-out visitors can browse.
-- **The Vault** (`/vault`) — **protected**; feed of AI-generated location dossiers
-  with up/down voting and a Latest / Top-rated (leaderboard) toggle.
-- **Generate** (`/generate`) — **protected**; pick a neighborhood + category and
-  Gemini writes a new dossier, saved to the database (prompt included).
-- **Login** (`/login`) — Google OAuth "secure terminal".
-- **Control Room** (`/dashboard`) & **Profile** (`/profile`) — **protected**.
+- **Home** (`/`) — what the app is + "how it works"; sign in with Google to enter.
+- **The Vault** (`/vault`) — **protected**; feed of AI-generated NYC spots with
+  up/down voting, Newest / Top-rated sort, area + vibe filters, one-tap
+  directions, save, and delete-your-own.
+- **Saved** (`/saved`) — **protected**; your personal want-to-go list.
+- **Generate** (`/generate`) — **protected**; pick a neighborhood (or type your
+  own) + vibe, or hit "Surprise me"; Gemini writes a spot, saved with its prompt.
+- **Classics** (`/locations`) — **protected**; hand-picked NYC staples.
+- **My activity** (`/dashboard`) & **Profile** (`/profile`) — **protected**.
+
+### Week 5 iteration (usability pass)
+Walked the app as a new user on desktop and phone, then fixed what got in the way:
+mobile nav overflowed off-screen → swipeable second row; vote column squeezed
+card text on phones → horizontal vote bar; vote tallies were shown twice →
+one score with a "Worth the trip?" hint; long AI blurbs → shorter prompt +
+"Read more"; jargon ("Authenticate", "Lock", "Declassify") → plain language;
+no way to act on a spot → Directions, Save list, filters, delete-your-own;
+login dropped you on a dead-end page → lands on the vault and keeps deep-link
+filters; slow AI calls (15-30s on the free tier) → live progress + higher
+timeout; plus visible keyboard focus and inline errors instead of `alert()`.
 
 **Live:** https://designforgenai.vercel.app
 
@@ -34,6 +45,7 @@ only **write rows they own**. Anonymous visitors see only the public `locations`
 | `generations` | authenticated       | insert/delete **own** rows              |
 | `votes`       | authenticated       | insert/update/delete **own** vote (one per dossier) |
 | `profiles`    | authenticated       | insert/update **own** row               |
+| `saves`       | **own rows only**   | insert/delete **own** saves             |
 
 - `generations` stores both the **prompt** and the generated place name + blurb.
 - `votes` has a `unique (generation_id, user_id)` constraint — one vote per user

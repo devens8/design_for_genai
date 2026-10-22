@@ -5,14 +5,22 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
+// Only allow same-site relative redirects after login.
+function safeNext(value) {
+  return value && value.startsWith("/") && !value.startsWith("//") ? value : "/vault";
+}
+
 function LoginInner() {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/dashboard";
+  const next = safeNext(searchParams.get("next"));
   const authError = searchParams.get("error");
+  const wasRedirected = searchParams.has("next");
 
   async function signInWithGoogle() {
     setLoading(true);
+    setError("");
     const supabase = createClient();
     const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(
       next
@@ -23,7 +31,7 @@ function LoginInner() {
     });
     if (error) {
       setLoading(false);
-      alert(`Sign-in failed: ${error.message}`);
+      setError(`Sign-in failed: ${error.message}`);
     }
     // On success the browser is redirected to Google, so no further UI needed.
   }
@@ -31,12 +39,16 @@ function LoginInner() {
   return (
     <main className="auth">
       <div className="auth-card">
-        <h1>ACCESS REQUIRED</h1>
-        <p className="auth-sub">Authenticate to unlock the vault</p>
+        <h1>Sign in</h1>
+        <p className="auth-sub">
+          {wasRedirected
+            ? "Sign in to see that page."
+            : "Sign in to browse, vote on and save NYC spots."}
+        </p>
 
-        {authError && (
-          <p className="auth-error">
-            Authentication failed. Verify credentials and retry.
+        {(authError || error) && (
+          <p className="auth-error" role="alert">
+            {error || "That sign-in didn't go through. Please try again."}
           </p>
         )}
 
@@ -63,11 +75,15 @@ function LoginInner() {
               d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
             />
           </svg>
-          {loading ? "Redirecting…" : "Continue with Google"}
+          {loading ? "Opening Google…" : "Continue with Google"}
         </button>
 
+        <p className="auth-fine">
+          We only use your name, email and photo to show who added a spot.
+        </p>
+
         <Link className="auth-back" href="/">
-          ← back home
+          ← What is NYC Vault?
         </Link>
       </div>
     </main>

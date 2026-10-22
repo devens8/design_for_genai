@@ -37,15 +37,15 @@ export default async function ProfilePage({ searchParams }) {
         <p className="subtitle">{profile?.email ?? user.email}</p>
         <nav className="page-nav">
           <Link className="back-link" href="/dashboard">
-            ← control room
+            ← My activity
           </Link>
         </nav>
       </header>
 
       {(welcome || needsName) && (
         <p className="welcome-banner">
-          👋 Welcome! Please add your first and last name to finish setting up
-          your account.
+          👋 Welcome! Add your name so people know who found each spot. Then
+          you&apos;re ready to explore.
         </p>
       )}
 

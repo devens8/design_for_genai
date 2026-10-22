@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useRef, useState } from "react";
+import Link from "next/link";
 import { updateProfile } from "./actions";
 
 const initialState = { ok: false, message: "" };
@@ -85,8 +86,14 @@ export default function ProfileForm({ profile }) {
       </label>
 
       {state.message && (
-        <p className={state.ok ? "form-success" : "form-error"}>
+        <p className={state.ok ? "form-success" : "form-error"} role="status">
           {state.message}
+          {state.ok && (
+            <>
+              {" "}
+              <Link href="/vault">Go to the vault →</Link>
+            </>
+          )}
         </p>
       )}
 

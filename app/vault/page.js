@@ -1,23 +1,32 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import VoteButtons from "./VoteButtons";
+import { loadFeed } from "@/lib/feed";
+import DossierCard from "@/app/components/DossierCard";
 
 export const metadata = {
   title: "The Vault",
-  description: "Declassified NYC location dossiers.",
+  description: "AI-generated NYC spots, rated by the community.",
 };
 
 export const dynamic = "force-dynamic";
 
-function authorHandle(d) {
-  const name = [d.author_first, d.author_last].filter(Boolean).join(" ").trim();
-  return name || "anonymous";
+// Build a /vault URL that keeps the other active filters.
+function vaultHref(current, change) {
+  const params = new URLSearchParams();
+  const next = { ...current, ...change };
+  for (const [k, v] of Object.entries(next)) {
+    if (v && !(k === "sort" && v === "new")) params.set(k, v);
+  }
+  const qs = params.toString();
+  return qs ? `/vault?${qs}` : "/vault";
 }
 
 export default async function VaultPage({ searchParams }) {
   const params = await searchParams;
   const sort = params?.sort === "top" ? "top" : "new";
+  const area = params?.area ?? "";
+  const cat = params?.cat ?? "";
 
   const supabase = await createClient();
   const {
@@ -25,86 +34,142 @@ export default async function VaultPage({ searchParams }) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/vault");
 
-  // Feed rows (with vote tallies + author) from the security_invoker view.
-  const { data: dossiers, error } = await supabase
-    .from("generation_feed")
-    .select("*")
-    .order(sort === "top" ? "score" : "created_at", { ascending: false });
+  const { rows: all, error, voteMap, savedSet } = await loadFeed(supabase, user, { sort });
 
-  // This user's own votes, so the buttons render in the right state.
-  const { data: myVotes } = await supabase
-    .from("votes")
-    .select("generation_id, value")
-    .eq("user_id", user.id);
-
-  const voteMap = new Map((myVotes ?? []).map((v) => [v.generation_id, v.value]));
-  const rows = dossiers ?? [];
+  // Filter options come from what's actually in the vault, so no dead ends.
+  const areas = [...new Set(all.map((d) => d.neighborhood))].sort();
+  const cats = [...new Set(all.map((d) => d.category))].sort();
+  const rows = all.filter(
+    (d) => (!area || d.neighborhood === area) && (!cat || d.category === cat)
+  );
+  const current = { sort, area, cat };
+  const filtering = Boolean(area || cat);
 
   return (
     <main className="page">
       <header className="page-header">
-        <h1>The Vault</h1>
+        <h1>{sort === "top" ? "Top rated" : "The Vault"}</h1>
         <p className="subtitle">
-          // {rows.length} location dossier{rows.length === 1 ? "" : "s"}{" "}
-          declassified
+          {sort === "top"
+            ? "The spots the community says are most worth the trip."
+            : "AI-written picks for places to go in NYC. Vote on whether each one is worth the trip, and save the ones you want to try."}
         </p>
       </header>
 
       <div className="vault-toolbar">
-        <div className="sort-tabs">
-          <Link href="/vault?sort=new" className={sort === "new" ? "active" : ""}>
-            Latest
+        <div className="sort-tabs" role="tablist" aria-label="Sort">
+          <Link
+            href={vaultHref(current, { sort: "new" })}
+            className={sort === "new" ? "active" : ""}
+            aria-current={sort === "new" ? "page" : undefined}
+          >
+            Newest
           </Link>
-          <Link href="/vault?sort=top" className={sort === "top" ? "active" : ""}>
+          <Link
+            href={vaultHref(current, { sort: "top" })}
+            className={sort === "top" ? "active" : ""}
+            aria-current={sort === "top" ? "page" : undefined}
+          >
             Top rated
           </Link>
         </div>
         <Link className="primary-btn" href="/generate">
-          + New dossier
+          + Find a new spot
         </Link>
       </div>
+
+      {all.length > 0 && (
+        <div className="filters">
+          <div className="filter-row">
+            <span className="filter-label">Area</span>
+            <Link
+              className={`pick ${!area ? "active" : ""}`}
+              href={vaultHref(current, { area: "" })}
+            >
+              All
+            </Link>
+            {areas.map((a) => (
+              <Link
+                key={a}
+                className={`pick ${area === a ? "active" : ""}`}
+                href={vaultHref(current, { area: a })}
+              >
+                {a}
+              </Link>
+            ))}
+          </div>
+          <div className="filter-row">
+            <span className="filter-label">Vibe</span>
+            <Link
+              className={`pick ${!cat ? "active" : ""}`}
+              href={vaultHref(current, { cat: "" })}
+            >
+              All
+            </Link>
+            {cats.map((c) => (
+              <Link
+                key={c}
+                className={`pick ${cat === c ? "active" : ""}`}
+                href={vaultHref(current, { cat: c })}
+              >
+                {c}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {error && (
         <p className="error">Could not load the vault: {error.message}</p>
       )}
 
-      {!error && rows.length === 0 && (
-        <p className="empty">
-          The vault is empty. <Link href="/generate">Generate the first dossier →</Link>
+      {!error && all.length === 0 && (
+        <div className="empty">
+          <p>The vault is empty. Be the first to add a spot.</p>
+          <Link className="primary-btn" href="/generate">
+            Find a spot →
+          </Link>
+        </div>
+      )}
+
+      {!error && all.length > 0 && rows.length === 0 && (
+        <div className="empty">
+          <p>No spots match those filters yet.</p>
+          <div className="empty-actions">
+            <Link className="secondary-btn" href={vaultHref(current, { area: "", cat: "" })}>
+              Clear filters
+            </Link>
+            <Link className="primary-btn" href="/generate">
+              Generate one →
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {rows.length > 0 && (
+        <p className="result-count">
+          {rows.length} spot{rows.length === 1 ? "" : "s"}
+          {filtering && (
+            <>
+              {" · "}
+              <Link href={vaultHref(current, { area: "", cat: "" })}>clear filters</Link>
+            </>
+          )}
         </p>
       )}
 
       <ul className="dossier-list">
         {rows.map((d, i) => (
-          <li key={d.id} className="dossier">
-            <VoteButtons
-              generationId={d.id}
-              score={d.score}
-              myVote={voteMap.get(d.id) ?? 0}
-            />
-
-            <div>
-              {sort === "top" && <span className="dossier-rank">#{i + 1}</span>}
-              <div className="dossier-head">
-                <span className="dossier-name">{d.place_name}</span>
-                <span className="tag tag--area">{d.neighborhood}</span>
-                <span className="tag tag--cat">{d.category}</span>
-              </div>
-              <p className="dossier-blurb">{d.blurb}</p>
-              <div className="dossier-foot">
-                <span>filed by @{authorHandle(d)}</span>
-                <span className="dossier-prompt">
-                  ▲ {d.upvotes} · ▼ {d.downvotes}
-                </span>
-              </div>
-            </div>
-          </li>
+          <DossierCard
+            key={d.id}
+            d={d}
+            myVote={voteMap.get(d.id) ?? 0}
+            saved={savedSet.has(d.id)}
+            isMine={d.user_id === user.id}
+            rank={sort === "top" ? i + 1 : null}
+          />
         ))}
       </ul>
-
-      <Link className="back-link center" href="/">
-        ← vault door
-      </Link>
     </main>
   );
 }

@@ -15,8 +15,8 @@ const sans = Inter({
 });
 
 export const metadata = {
-  title: "NYC Vault",
-  description: "A declassified, AI-generated archive of places to visit in New York.",
+  title: { default: "NYC Vault", template: "%s · NYC Vault" },
+  description: "AI-picked places to go in New York, rated by the community.",
 };
 
 export default function RootLayout({ children }) {

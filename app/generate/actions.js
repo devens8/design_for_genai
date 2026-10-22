@@ -22,14 +22,21 @@ export async function createDossier(prevState, formData) {
   const notes = formData.get("notes")?.toString().trim() || null;
 
   if (!neighborhood || !category) {
-    return { ok: false, message: "Pick a neighborhood and a category." };
+    return { ok: false, message: "Pick a neighborhood and a vibe." };
+  }
+  if (neighborhood.length > 40 || category.length > 40 || (notes?.length ?? 0) > 200) {
+    return { ok: false, message: "That's a bit long — keep it short and try again." };
   }
 
   let dossier;
   try {
     dossier = await generateDossier({ neighborhood, category, notes });
   } catch (err) {
-    return { ok: false, message: err.message || "Generation failed." };
+    console.error("generateDossier failed:", err);
+    return {
+      ok: false,
+      message: "The AI couldn't come up with a spot just now. Please try again in a few seconds.",
+    };
   }
 
   const { data: row, error } = await supabase
@@ -47,11 +54,12 @@ export async function createDossier(prevState, formData) {
     .single();
 
   if (error) {
-    return { ok: false, message: `Could not save: ${error.message}` };
+    return { ok: false, message: `Found a spot but couldn't save it: ${error.message}` };
   }
 
   // The vault feed reads fresh on each request, but revalidate to be safe.
   revalidatePath("/vault");
+  revalidatePath("/dashboard");
 
   return { ok: true, message: "Dossier declassified and filed.", dossier: row };
 }
