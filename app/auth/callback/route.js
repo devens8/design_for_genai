@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { isEmailAllowed } from "@/lib/signupAllowlist";
 
 // OAuth redirect target. Google sends the user back here with a `code` that we
 // exchange for a session. Set this exact path (/auth/callback) as the redirect
@@ -23,6 +24,13 @@ export async function GET(request) {
       const {
         data: { user },
       } = await supabase.auth.getUser();
+
+      // Signup allowlist (domains + whitelisted emails, managed in the admin
+      // app). Not on the list → drop the session we just created.
+      if (user && !(await isEmailAllowed(user.email))) {
+        await supabase.auth.signOut();
+        return NextResponse.redirect(`${origin}/login?error=not_allowed`);
+      }
 
       if (user) {
         const { data: profile } = await supabase

@@ -47,7 +47,10 @@ function LoginInner() {
 
         {(authError || error) && (
           <p className="auth-error" role="alert">
-            {error || "That sign-in didn't go through. Please try again."}
+            {error ||
+              (authError === "not_allowed"
+                ? "This email isn't on the NYC Vault access list. Sign in with a Columbia or Barnard address, or ask an admin to whitelist you."
+                : "That sign-in didn't go through. Please try again.")}
           </p>
         )}
 

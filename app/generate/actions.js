@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { generateDossier } from "@/lib/gemini";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { runGeneration } from "@/lib/pipeline";
 
 // Generate a new location dossier with Gemini and insert it into the DB.
 // Mutating data requires auth: we re-check the session server-side (the RLS
@@ -28,11 +29,20 @@ export async function createDossier(prevState, formData) {
     return { ok: false, message: "That's a bit long — keep it short and try again." };
   }
 
+  // Prompt chain, model, glossary and examples all come from the DB (managed
+  // in the admin app); the service-role client writes the request/LLM logs.
+  const logDb = createAdminClient();
   let dossier;
   try {
-    dossier = await generateDossier({ neighborhood, category, notes });
+    dossier = await runGeneration(logDb, {
+      userId: user.id,
+      source: "app",
+      neighborhood,
+      category,
+      notes,
+    });
   } catch (err) {
-    console.error("generateDossier failed:", err);
+    console.error("runGeneration failed:", err);
     return {
       ok: false,
       message: "The AI couldn't come up with a spot just now. Please try again in a few seconds.",
@@ -54,8 +64,10 @@ export async function createDossier(prevState, formData) {
     .single();
 
   if (error) {
+    await dossier.finish({ status: "failed", error: `Save failed: ${error.message}` });
     return { ok: false, message: `Found a spot but couldn't save it: ${error.message}` };
   }
+  await dossier.finish({ status: "succeeded", generation_id: row.id });
 
   // The vault feed reads fresh on each request, but revalidate to be safe.
   revalidatePath("/vault");
