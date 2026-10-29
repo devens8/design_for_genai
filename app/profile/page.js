@@ -32,9 +32,12 @@ export default async function ProfilePage({ searchParams }) {
 
   return (
     <main className="page profile-page">
-      <header className="page-header">
-        <h1>Profile</h1>
-        <p className="subtitle">{profile?.email ?? user.email}</p>
+      <header className="page-hero">
+        <p className="eyebrow">Your profile</p>
+        <h1 className="page-title">
+          About <em>you</em>
+        </h1>
+        <p className="page-sub">{profile?.email ?? user.email}</p>
         <nav className="page-nav">
           <Link className="back-link" href="/dashboard">
             ← My activity

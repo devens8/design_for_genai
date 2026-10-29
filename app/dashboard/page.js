@@ -55,7 +55,9 @@ export default async function DashboardPage() {
             </div>
           )}
           <div>
-            <h1 className="dash-hello">Hi, {name}</h1>
+            <h1 className="dash-hello">
+              Hi, <em>{name}</em>
+            </h1>
             <p className="dash-email">{user.email}</p>
           </div>
         </div>
@@ -70,32 +72,33 @@ export default async function DashboardPage() {
         </div>
 
         <div className="dash-actions">
-          <Link className="primary-btn" href="/generate">
-            Find a new spot
+          <Link className="btn btn--primary" href="/generate">
+            Find a spot
           </Link>
-          <Link className="secondary-btn" href="/profile">
+          <Link className="btn btn--ghost" href="/profile">
             Edit profile
           </Link>
           <form action="/auth/signout" method="post">
-            <button type="submit" className="secondary-btn">
+            <button type="submit" className="btn btn--ghost">
               Sign out
             </button>
           </form>
         </div>
       </section>
 
-      <h2 className="section-title" id="my-spots">
-        Spots you added
+      <h2 className="section-heading" id="my-spots">
+        Spots <em>you found</em>
       </h2>
       {mine.length === 0 ? (
         <div className="empty">
-          <p>You haven&apos;t added any spots yet.</p>
-          <Link className="primary-btn" href="/generate">
-            Generate your first →
+          <h2>No spots yet</h2>
+          <p>Your finds will show up here.</p>
+          <Link className="btn btn--primary" href="/generate">
+            Find your first
           </Link>
         </div>
       ) : (
-        <ul className="dossier-list">
+        <ul className="spot-grid">
           {mine.map((d) => (
             <DossierCard
               key={d.id}

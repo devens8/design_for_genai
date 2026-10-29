@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { loadFeed, loadSavedIds } from "@/lib/feed";
 import DossierCard from "@/app/components/DossierCard";
+import { LeafSprig } from "@/app/components/Art";
 
 export const metadata = {
   title: "Saved",
@@ -27,25 +28,31 @@ export default async function SavedPage() {
 
   return (
     <main className="page">
-      <header className="page-header">
-        <h1>Saved</h1>
-        <p className="subtitle">
-          Your want-to-go list. Tap ★ on any spot in the vault to add it here.
+      <header className="page-hero">
+        <LeafSprig className="page-hero-art" />
+        <p className="eyebrow">Saved</p>
+        <h1 className="page-title">
+          Your <em>list</em>
+        </h1>
+        <p className="page-sub">
+          Places you want to try. Tap the heart on any spot to add it here.
         </p>
       </header>
 
-      {error && <p className="error">Could not load your list: {error.message}</p>}
+      {error && <p className="form-error">Could not load your list: {error.message}</p>}
 
       {!error && rows.length === 0 && (
-        <div className="empty">
-          <p>Nothing saved yet.</p>
-          <Link className="primary-btn" href="/vault">
-            Browse the vault →
+        <div className="empty reveal">
+          <LeafSprig className="empty-art" />
+          <h2>Nothing saved yet</h2>
+          <p>Find a few places that sound good and tap the heart.</p>
+          <Link className="btn btn--primary" href="/vault">
+            Discover spots
           </Link>
         </div>
       )}
 
-      <ul className="dossier-list">
+      <ul className="spot-grid">
         {rows.map((d) => (
           <DossierCard
             key={d.id}

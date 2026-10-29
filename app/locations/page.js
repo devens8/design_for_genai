@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { mapsUrl } from "@/lib/places";
+import { CoffeeCup, LeafSprig, WineGlass } from "@/app/components/Art";
+import { vibe } from "@/app/components/vibes";
 
 // Always fetch fresh data from Supabase on each request.
 export const dynamic = "force-dynamic";
@@ -10,6 +12,8 @@ export const metadata = {
   title: "NYC Classics",
   description: "Hand-picked NYC classics.",
 };
+
+const ART = [LeafSprig, CoffeeCup, WineGlass];
 
 export default async function LocationsPage() {
   // Members only: gated by middleware, enforced again here as a backstop.
@@ -26,48 +30,52 @@ export default async function LocationsPage() {
 
   return (
     <main className="page">
-      <header className="page-header">
-        <h1>NYC Classics</h1>
-        <p className="subtitle">
-          {locations?.length ?? 0} hand-picked, can&apos;t-miss New York spots.
-          For AI-found hidden gems, head to the vault.
+      <header className="page-hero">
+        <LeafSprig className="page-hero-art" />
+        <p className="eyebrow">The guidebook</p>
+        <h1 className="page-title">
+          NYC <em>Classics</em>
+        </h1>
+        <p className="page-sub">
+          {locations?.length ?? 0} can&apos;t-miss New York places, picked by
+          hand. For new finds, head to Discover.
         </p>
       </header>
 
-      {error && (
-        <p className="error">Could not load the classics: {error.message}</p>
-      )}
+      {error && <p className="form-error">Could not load the classics: {error.message}</p>}
+      {!error && locations?.length === 0 && <p className="empty">No classics yet.</p>}
 
-      {!error && locations?.length === 0 && (
-        <p className="empty">No classics yet.</p>
-      )}
+      <ol className="guide">
+        {locations?.map((loc, i) => {
+          const v = vibe(loc.category);
+          const Art = ART[i % ART.length];
+          return (
+            <li key={loc.id} className={`guide-row reveal ${i % 2 ? "guide-row--flip" : ""}`}>
+              <div className="guide-plate" style={{ "--from": v.from, "--to": v.to }}>
+                <span className="guide-num">{String(i + 1).padStart(2, "0")}</span>
+                <Art className="guide-art" />
+              </div>
+              <div className="guide-text">
+                <h2 className="guide-name">{loc.name}</h2>
+                <div className="tags">
+                  <span className="tag tag--area">{loc.neighborhood}</span>
+                  <span className="tag tag--vibe">
+                    <span aria-hidden="true">{v.icon}</span> {loc.category}
+                  </span>
+                </div>
+                <p>{loc.description}</p>
+                <a className="dir-link" href={mapsUrl(loc.name, loc.neighborhood)} target="_blank" rel="noopener noreferrer">
+                  Directions ↗
+                </a>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
 
-      <ul className="card-grid">
-        {locations?.map((loc) => (
-          <li key={loc.id} className="card">
-            <div className="dossier-head">
-              <span className="card-title">{loc.name}</span>
-            </div>
-            <div className="dossier-head" style={{ marginBottom: "0.75rem" }}>
-              <span className="tag tag--area">{loc.neighborhood}</span>
-              <span className="tag tag--cat">{loc.category}</span>
-            </div>
-            <p className="dossier-blurb">{loc.description}</p>
-            <a
-              className="card-action card-action--primary"
-              href={mapsUrl(loc.name, loc.neighborhood)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              ↗ Directions
-            </a>
-          </li>
-        ))}
-      </ul>
-
-      <div className="vault-toolbar" style={{ marginTop: "2.5rem", justifyContent: "center" }}>
-        <Link className="primary-btn" href="/vault">
-          Browse the vault →
+      <div className="center-cta">
+        <Link className="btn btn--primary" href="/vault">
+          Discover more spots
         </Link>
       </div>
     </main>

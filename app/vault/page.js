@@ -3,10 +3,13 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { loadFeed } from "@/lib/feed";
 import DossierCard from "@/app/components/DossierCard";
+import { Laurel, LeafSprig } from "@/app/components/Art";
+import { vibe } from "@/app/components/vibes";
+import TopRated from "./TopRated";
 
 export const metadata = {
-  title: "The Vault",
-  description: "AI-generated NYC spots, rated by the community.",
+  title: "Discover",
+  description: "AI-found NYC spots, rated by the community.",
 };
 
 export const dynamic = "force-dynamic";
@@ -36,140 +39,149 @@ export default async function VaultPage({ searchParams }) {
 
   const { rows: all, error, voteMap, savedSet } = await loadFeed(supabase, user, { sort });
 
-  // Filter options come from what's actually in the vault, so no dead ends.
+  // Filter options come from what's actually in the list, so no dead ends.
   const areas = [...new Set(all.map((d) => d.neighborhood))].sort();
   const cats = [...new Set(all.map((d) => d.category))].sort();
   const rows = all.filter(
     (d) => (!area || d.neighborhood === area) && (!cat || d.category === cat)
   );
   const current = { sort, area, cat };
-  const filtering = Boolean(area || cat);
+  const top = sort === "top";
 
   return (
-    <main className="page">
-      <header className="page-header">
-        <h1>{sort === "top" ? "Top rated" : "The Vault"}</h1>
-        <p className="subtitle">
-          {sort === "top"
-            ? "The spots the community says are most worth the trip."
-            : "AI-written picks for places to go in NYC. Vote on whether each one is worth the trip, and save the ones you want to try."}
+    <main className={`page ${top ? "page--top" : ""}`}>
+      <header className={`page-hero ${top ? "page-hero--center" : ""}`}>
+        {top ? <Laurel className="laurel" /> : <LeafSprig className="page-hero-art" />}
+        <p className="eyebrow">{top ? "Voted by members" : "Discover"}</p>
+        <h1 className="page-title">
+          {top ? (
+            <>
+              The city&apos;s <em>favorites</em>
+            </>
+          ) : (
+            <>
+              Spots worth <em>the trip</em>
+            </>
+          )}
+        </h1>
+        <p className="page-sub">
+          {top
+            ? "The places members say are most worth going to, ranked."
+            : "AI-found places around the city. Vote on each one, save the ones you want to try."}
         </p>
       </header>
 
-      <div className="vault-toolbar">
-        <div className="sort-tabs" role="tablist" aria-label="Sort">
-          <Link
-            href={vaultHref(current, { sort: "new" })}
-            className={sort === "new" ? "active" : ""}
-            aria-current={sort === "new" ? "page" : undefined}
-          >
+      <div className="toolbar">
+        <div className="segmented" aria-label="Sort">
+          <Link href={vaultHref(current, { sort: "new" })} className={!top ? "active" : ""} aria-current={!top ? "page" : undefined}>
             Newest
           </Link>
-          <Link
-            href={vaultHref(current, { sort: "top" })}
-            className={sort === "top" ? "active" : ""}
-            aria-current={sort === "top" ? "page" : undefined}
-          >
+          <Link href={vaultHref(current, { sort: "top" })} className={top ? "active" : ""} aria-current={top ? "page" : undefined}>
             Top rated
           </Link>
         </div>
-        <Link className="primary-btn" href="/generate">
-          + Find a new spot
+        <Link className="btn btn--primary btn--sm" href="/generate">
+          + Find a spot
         </Link>
       </div>
 
       {all.length > 0 && (
-        <div className="filters">
-          <div className="filter-row">
+        <div className={`filter-bar ${top ? "filter-bar--compact" : ""}`}>
+          <div className="filter-group">
             <span className="filter-label">Area</span>
-            <Link
-              className={`pick ${!area ? "active" : ""}`}
-              href={vaultHref(current, { area: "" })}
-            >
-              All
-            </Link>
-            {areas.map((a) => (
-              <Link
-                key={a}
-                className={`pick ${area === a ? "active" : ""}`}
-                href={vaultHref(current, { area: a })}
-              >
-                {a}
+            <div className="chip-scroll">
+              <Link className={`chip ${!area ? "active" : ""}`} href={vaultHref(current, { area: "" })}>
+                All
               </Link>
-            ))}
+              {areas.map((a) => (
+                <Link key={a} className={`chip ${area === a ? "active" : ""}`} href={vaultHref(current, { area: a })}>
+                  {a}
+                </Link>
+              ))}
+            </div>
           </div>
-          <div className="filter-row">
+          <div className="filter-group">
             <span className="filter-label">Vibe</span>
-            <Link
-              className={`pick ${!cat ? "active" : ""}`}
-              href={vaultHref(current, { cat: "" })}
-            >
-              All
-            </Link>
-            {cats.map((c) => (
-              <Link
-                key={c}
-                className={`pick ${cat === c ? "active" : ""}`}
-                href={vaultHref(current, { cat: c })}
-              >
-                {c}
+            <div className="chip-scroll">
+              <Link className={`chip ${!cat ? "active" : ""}`} href={vaultHref(current, { cat: "" })}>
+                All
               </Link>
-            ))}
+              {cats.map((c) => (
+                <Link key={c} className={`chip ${cat === c ? "active" : ""}`} href={vaultHref(current, { cat: c })}>
+                  <span aria-hidden="true">{vibe(c).icon}</span> {c}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
-      {error && (
-        <p className="error">Could not load the vault: {error.message}</p>
+      {(area || cat) && (
+        <div className="active-filters">
+          <span>
+            {rows.length} spot{rows.length === 1 ? "" : "s"} ·
+          </span>
+          {area && (
+            <Link className="pill-x" href={vaultHref(current, { area: "" })} aria-label={`Remove area filter ${area}`}>
+              {area} <span aria-hidden="true">×</span>
+            </Link>
+          )}
+          {cat && (
+            <Link className="pill-x" href={vaultHref(current, { cat: "" })} aria-label={`Remove vibe filter ${cat}`}>
+              {cat} <span aria-hidden="true">×</span>
+            </Link>
+          )}
+          <Link className="text-link" href={vaultHref(current, { area: "", cat: "" })}>
+            Clear all
+          </Link>
+        </div>
       )}
 
+      {error && <p className="form-error">Could not load spots: {error.message}</p>}
+
       {!error && all.length === 0 && (
-        <div className="empty">
-          <p>The vault is empty. Be the first to add a spot.</p>
-          <Link className="primary-btn" href="/generate">
-            Find a spot →
+        <div className="empty reveal">
+          <LeafSprig className="empty-art" />
+          <h2>Nothing here yet</h2>
+          <p>Be the first to find a spot.</p>
+          <Link className="btn btn--primary" href="/generate">
+            Find a spot
           </Link>
         </div>
       )}
 
       {!error && all.length > 0 && rows.length === 0 && (
-        <div className="empty">
-          <p>No spots match those filters yet.</p>
+        <div className="empty reveal">
+          <LeafSprig className="empty-art" />
+          <h2>No spots match yet</h2>
+          <p>Try another area or vibe, or ask for one.</p>
           <div className="empty-actions">
-            <Link className="secondary-btn" href={vaultHref(current, { area: "", cat: "" })}>
+            <Link className="btn btn--ghost" href={vaultHref(current, { area: "", cat: "" })}>
               Clear filters
             </Link>
-            <Link className="primary-btn" href="/generate">
-              Generate one →
+            <Link className="btn btn--primary" href="/generate">
+              Find one
             </Link>
           </div>
         </div>
       )}
 
-      {rows.length > 0 && (
-        <p className="result-count">
-          {rows.length} spot{rows.length === 1 ? "" : "s"}
-          {filtering && (
-            <>
-              {" · "}
-              <Link href={vaultHref(current, { area: "", cat: "" })}>clear filters</Link>
-            </>
-          )}
-        </p>
-      )}
-
-      <ul className="dossier-list">
-        {rows.map((d, i) => (
-          <DossierCard
-            key={d.id}
-            d={d}
-            myVote={voteMap.get(d.id) ?? 0}
-            saved={savedSet.has(d.id)}
-            isMine={d.user_id === user.id}
-            rank={sort === "top" ? i + 1 : null}
-          />
+      {rows.length > 0 &&
+        (top ? (
+          <TopRated rows={rows} voteMap={voteMap} savedSet={savedSet} />
+        ) : (
+          <ul className="spot-grid">
+            {rows.map((d) => (
+              <DossierCard
+                key={d.id}
+                d={d}
+                myVote={voteMap.get(d.id) ?? 0}
+                saved={savedSet.has(d.id)}
+                isMine={d.user_id === user.id}
+              />
+            ))}
+          </ul>
         ))}
-      </ul>
     </main>
   );
 }

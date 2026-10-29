@@ -36,7 +36,7 @@ export default function ProfileForm({ profile }) {
         <div className="avatar-actions">
           <button
             type="button"
-            className="secondary-btn"
+            className="btn btn--ghost btn--sm"
             onClick={() => fileRef.current?.click()}
           >
             Choose photo
@@ -91,13 +91,13 @@ export default function ProfileForm({ profile }) {
           {state.ok && (
             <>
               {" "}
-              <Link href="/vault">Go to the vault →</Link>
+              <Link href="/vault">Start discovering →</Link>
             </>
           )}
         </p>
       )}
 
-      <button type="submit" className="primary-btn" disabled={pending}>
+      <button type="submit" className="btn btn--primary" disabled={pending}>
         {pending ? "Saving…" : "Save profile"}
       </button>
     </form>

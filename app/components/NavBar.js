@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import NavLinks from "./NavLinks";
+import { LeafMark } from "./Art";
 
 // Persistent top nav. Reads the session so it can show the member links and
 // the signed-in user. Rendered from the root layout on every page.
@@ -21,43 +22,25 @@ export default async function NavBar() {
   }
 
   return (
-    <header className={`nav ${user ? "nav--member" : ""}`}>
+    <header className="nav">
       <div className="nav-top">
-        <Link href={user ? "/vault" : "/"} className="nav-brand">
-          <span className="nav-lock" aria-hidden="true">
-            {user ? "⬡" : "⬣"}
-          </span>
-          <span className="nav-wordmark">
-            NYC<span className="nav-dot">·</span>VAULT
-          </span>
+        <Link href={user ? "/vault" : "/"} className="logo" aria-label="Little Spots NYC home">
+          <LeafMark />
+          <span className="logo-little">Little</span>
+          <span className="logo-spots">SPOTS</span>
+          <span className="logo-nyc">nyc</span>
         </Link>
 
         {/* Members only: no content links until you sign in. */}
-        {user && <NavLinks />}
-
-        <div className="nav-access">
-          {user ? (
-            <>
-              <Link
-                href="/dashboard"
-                className="nav-avatar"
-                title={`My activity (${user.email})`}
-                aria-label="My activity"
-              >
-                {initial}
-              </Link>
-              <form action="/auth/signout" method="post">
-                <button type="submit" className="nav-btn">
-                  Sign out
-                </button>
-              </form>
-            </>
-          ) : (
-            <Link href="/login" className="nav-btn nav-btn--accent">
+        {user ? (
+          <NavLinks initial={initial} email={user.email} />
+        ) : (
+          <div className="nav-access">
+            <Link href="/login" className="btn btn--primary btn--sm">
               Sign in
             </Link>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </header>
   );

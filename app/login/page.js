@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { oauthRedirectFor } from "@/lib/authRelay";
+import { LeafSprig } from "@/app/components/Art";
 
 // Only allow same-site relative redirects after login.
 function safeNext(value) {
@@ -37,8 +38,12 @@ function LoginInner() {
 
   return (
     <main className="auth">
+      <span className="blob blob--a" aria-hidden="true" />
       <div className="auth-card">
-        <h1>Sign in</h1>
+        <LeafSprig className="auth-art" />
+        <h1>
+          Welcome <em>in</em>
+        </h1>
         <p className="auth-sub">
           {wasRedirected
             ? "Sign in to see that page."
@@ -49,7 +54,7 @@ function LoginInner() {
           <p className="auth-error" role="alert">
             {error ||
               (authError === "not_allowed"
-                ? "This email isn't on the NYC Vault access list. Sign in with a Columbia or Barnard address, or ask an admin to whitelist you."
+                ? "This email isn't on the Little Spots access list. Sign in with a Columbia or Barnard address, or ask an admin to whitelist you."
                 : "That sign-in didn't go through. Please try again.")}
           </p>
         )}
@@ -85,7 +90,7 @@ function LoginInner() {
         </p>
 
         <Link className="auth-back" href="/">
-          ← What is NYC Vault?
+          ← What is Little Spots?
         </Link>
       </div>
     </main>
