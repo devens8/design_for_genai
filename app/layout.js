@@ -2,6 +2,7 @@ import { DM_Sans, Fraunces } from "next/font/google";
 import "./globals.css";
 import NavBar from "./components/NavBar";
 import ScrollReveal from "./components/ScrollReveal";
+import SiteFooter from "./components/SiteFooter";
 
 // Fraunces (soft, variable serif with real italics) for display type; DM Sans
 // for body and UI.
@@ -28,6 +29,7 @@ export default function RootLayout({ children }) {
       <body className={`${display.variable} ${sans.variable}`}>
         <NavBar />
         {children}
+        <SiteFooter />
         <ScrollReveal />
       </body>
     </html>
